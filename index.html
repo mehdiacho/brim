@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brim · a living notch for Windows</title>
+<meta name="description" content="Brim is a free, open-source notch for Windows: media and lyrics, volume and brightness, battery, Bluetooth and notifications in a black pill at the top of your screen.">
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --bg: #07080a;
+    --panel: #101216;
+    --line: #1d2026;
+    --text: #eceef2;
+    --mist: #9aa0aa;
+    --green: #6bdc8c;
+    --pill: #000;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.01em; text-decoration: none; }
+  .brand img { width: 28px; height: 28px; }
+  nav a { color: var(--mist); text-decoration: none; margin-left: 22px; font-size: 15px; }
+  nav a:hover { color: var(--text); }
+
+  /* The screen mock with a notch that cycles through its states. */
+  .hero { text-align: center; padding: 40px 0 30px; }
+  .screen {
+    position: relative; margin: 0 auto 48px; max-width: 760px; aspect-ratio: 16 / 7;
+    border-radius: 18px; border: 1px solid var(--line); overflow: hidden;
+    background: radial-gradient(120% 90% at 50% 0%, #1b2a4a 0%, #0d1220 45%, #090b10 100%);
+  }
+  .notch {
+    position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+    background: var(--pill); border-radius: 0 0 22px 22px;
+    width: 112px; height: 16px; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+    animation: notch 12s cubic-bezier(.3,1.35,.5,1) infinite;
+  }
+  .notch > div { position: absolute; inset: 0; opacity: 0; animation: 12s infinite; display: flex; align-items: center; }
+  .live { padding: 0 12px; gap: 8px; animation-name: live !important; }
+  .live .art { width: 16px; height: 16px; border-radius: 4px; background: linear-gradient(135deg,#ff8a5c,#c03a7a); }
+  .live .bars { margin-left: auto; display: flex; gap: 2px; align-items: flex-end; height: 12px; }
+  .live .bars i { width: 3px; background: var(--green); border-radius: 2px; animation: bar .9s ease-in-out infinite alternate; }
+  .live .bars i:nth-child(2) { animation-delay: .2s } .live .bars i:nth-child(3) { animation-delay: .4s }
+  .exp { padding: 18px 22px; gap: 16px; text-align: left; animation-name: exp !important; }
+  .exp .art { width: 64px; height: 64px; border-radius: 12px; background: linear-gradient(135deg,#ff8a5c,#c03a7a); flex: none; }
+  .exp b { display: block; font-size: 15px; }
+  .exp span { color: var(--mist); font-size: 13px; }
+  .exp em { display: block; font-style: normal; color: #fff; font-size: 13px; margin-top: 6px; opacity: .85; }
+  .osd { padding: 0 16px; gap: 10px; font-size: 13px; font-weight: 600; animation-name: osd !important; }
+  .osd .track { flex: 1; height: 5px; border-radius: 3px; background: #2a2d33; overflow: hidden; }
+  .osd .track i { display: block; height: 100%; width: 64%; background: #fff; border-radius: 3px; }
+  @keyframes notch {
+    0%, 14%   { width: 112px; height: 16px; }
+    20%, 36%  { width: 210px; height: 30px; border-radius: 0 0 16px 16px; }
+    42%, 62%  { width: 480px; height: 108px; border-radius: 0 0 30px 30px; }
+    68%, 80%  { width: 260px; height: 36px; border-radius: 0 0 18px 18px; }
+    86%, 100% { width: 112px; height: 16px; }
+  }
+  @keyframes live { 0%,18% {opacity:0} 21%,35% {opacity:1} 38%,100% {opacity:0} }
+  @keyframes exp  { 0%,43% {opacity:0} 47%,60% {opacity:1} 63%,100% {opacity:0} }
+  @keyframes osd  { 0%,69% {opacity:0} 72%,79% {opacity:1} 82%,100% {opacity:0} }
+  @keyframes bar  { from { height: 3px } to { height: 12px } }
+  @media (prefers-reduced-motion: reduce) {
+    .notch, .notch > div, .live .bars i { animation: none !important; }
+    .notch { width: 210px; height: 30px; } .live { opacity: 1; }
+  }
+
+  h1 { font-size: clamp(40px, 6vw, 68px); line-height: 1.02; letter-spacing: -.035em; margin: 0 0 16px; font-weight: 750; }
+  .lede { color: var(--mist); font-size: clamp(17px, 2vw, 20px); max-width: 34em; margin: 0 auto 30px; }
+  .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px;
+    font-weight: 650; text-decoration: none; border: 1px solid var(--line); background: var(--panel);
+  }
+  .btn.primary { background: var(--text); color: #0a0b0d; border-color: var(--text); }
+  .btn:hover { filter: brightness(1.08); }
+  .meta { color: var(--mist); font-size: 14px; margin-top: 14px; }
+
+  section { padding: 70px 0 10px; }
+  h2 { font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.025em; margin: 0 0 26px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 17px; }
+  .card p { margin: 0; color: var(--mist); font-size: 15px; }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .steps li { counter-increment: step; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px 16px 56px; position: relative; color: var(--mist); }
+  .steps li::before { content: counter(step); position: absolute; left: 18px; top: 15px; width: 24px; height: 24px; border-radius: 50%; background: var(--text); color: #0a0b0d; font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+  .steps b { color: var(--text); }
+  code { background: #1a1d22; border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; font-size: 14px; }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { color: var(--mist); margin: 10px 0 2px; }
+  footer { color: var(--mist); font-size: 14px; padding: 60px 0 40px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 560px) { nav a:not(.cta) { display: none; } .screen { aspect-ratio: 4 / 3; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="#"><img src="icon.png" alt="">Brim</a>
+    <nav><a href="#features">Features</a><a href="#install">Install</a><a href="#faq">FAQ</a><a class="cta" href="#download">Download</a></nav>
+  </header>
+
+  <div class="hero">
+    <div class="screen" aria-hidden="true">
+      <div class="notch">
+        <div class="live"><span class="art"></span><span class="bars"><i></i><i></i><i></i></span></div>
+        <div class="exp"><span class="art"></span><div><b>Midnight Drive</b><span>Neon Coast</span><em>♪ and the city hums below us</em></div></div>
+        <div class="osd"><span>🔊</span><span class="track"><i></i></span><span>64</span></div>
+      </div>
+    </div>
+    <h1>A living notch<br>for Windows.</h1>
+    <p class="lede">Brim puts a small black pill at the top of your screen. It shows what's playing,
+      catches your volume and battery changes, and slides your notifications in. It's free and open source.</p>
+    <div class="buttons" id="download">
+      <a class="btn primary" href="https://github.com/mehdiacho/brim/releases/latest/download/Brim-portable.exe">Download for Windows</a>
+      <a class="btn" href="https://github.com/mehdiacho/brim/releases/latest/download/Brim.msix">MSIX package</a>
+    </div>
+    <p class="meta"><span id="version">Beta</span> · Windows 10 and 11 (x64) · about 0.5 MB · <a href="https://github.com/mehdiacho/brim/releases">all releases</a></p>
+  </div>
+
+  <section id="features">
+    <h2>What it does</h2>
+    <div class="grid">
+      <div class="card"><h3>Now playing</h3><p>Works with Spotify, browsers, or any app that shows media controls. You get the album art, play/pause and skip, and synced lyrics from LRCLIB.</p></div>
+      <div class="card"><h3>Volume and brightness</h3><p>A slim bar slides out of the notch in place of the Windows flyout.</p></div>
+      <div class="card"><h3>Battery</h3><p>Charging, unplugged, low and full alerts, plus a charge ring when you hover.</p></div>
+      <div class="card"><h3>Bluetooth</h3><p>Shows when headphones connect or drop, with their battery level when the device reports it.</p></div>
+      <div class="card"><h3>Notifications</h3><p>Toasts from your apps show up in the notch, so they're easy to glance at.</p></div>
+      <div class="card"><h3>Stays out of the way</h3><p>Brim hides for fullscreen games and video, and stays light on CPU. It updates itself quietly.</p></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <ol class="steps">
+      <li><b>Download <code>Brim-portable.exe</code></b> and put it wherever you like, for example a <code>Brim</code> folder in Documents. There's nothing to install.</li>
+      <li><b>Run it.</b> Brim isn't signed with a paid certificate yet, so Windows SmartScreen may warn you. Choose <i>More info</i>, then <i>Run anyway</i>.</li>
+      <li><b>Allow notification access</b> if Windows asks, so Brim can mirror your toasts. Right-click the pill in the tray to set up <i>Start with Windows</i> and the other options.</li>
+    </ol>
+    <p class="meta" style="text-align:left">Prefer an installed app? Download <a href="https://github.com/mehdiacho/brim/releases/latest/download/Brim.cer">Brim.cer</a>.
+      Right-click it, choose <i>Install Certificate</i> → <i>Local Machine</i> → <i>Trusted People</i>, then open <code>Brim.msix</code>.</p>
+  </section>
+
+  <section id="faq">
+    <h2>FAQ</h2>
+    <details><summary>How do updates work?</summary><p>Brim checks GitHub for a new release when it starts and every few hours after that. It downloads the update in the background, checks the file's fingerprint, and then tells you it's ready. One click installs it. If you'd rather it installed on its own while you're away, turn that on under <i>Updates</i> in the tray menu.</p></details>
+    <details><summary>Does it collect anything?</summary><p>No. Brim connects to two places: LRCLIB for lyrics of the song that's playing, and GitHub to check for updates. The keyboard hook only watches for the volume keys, Caps Lock and layout switches, and passes every key straight on.</p></details>
+    <details><summary>How do I remove it?</summary><p>Quit it from the tray menu and delete the exe. Settings live in <code>%LOCALAPPDATA%\Brim</code>. If you installed the MSIX, uninstall Brim from Start.</p></details>
+    <details><summary>Something looks wrong</summary><p>It's a beta, and reports help. Tell Mehdi what you saw. A screenshot and your Windows version and display scaling make it much easier to fix.</p></details>
+  </section>
+
+  <footer>
+    <span>Brim by <a href="https://mehdiacho.tech">Mehdi Acho</a> · MIT licence</span>
+    <span>Lyrics by <a href="https://lrclib.net">LRCLIB</a></span>
+  </footer>
+</div>
+<script>
+  fetch('https://api.github.com/repos/mehdiacho/brim/releases/latest')
+    .then(r => r.ok ? r.json() : null)
+    .then(r => { if (r && r.tag_name) document.getElementById('version').textContent = r.tag_name + ' beta'; })
+    .catch(() => {});
+</script>
+</body>
+</html>
