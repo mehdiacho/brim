@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Brim · a living notch for Windows</title>
-<meta name="description" content="Brim is a free, open-source notch for Windows: media and lyrics, volume and brightness, battery, Bluetooth and notifications in a black pill at the top of your screen.">
+<meta name="description" content="Brim puts a living notch at the top of your Windows screen: media and lyrics, volume and brightness, battery, Bluetooth, network and notifications.">
 <link rel="icon" href="icon.png">
 <style>
   :root {
@@ -14,163 +14,171 @@
     --text: #eceef2;
     --mist: #9aa0aa;
     --green: #6bdc8c;
-    --pill: #000;
+    --s: 1;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
   body {
-    margin: 0; background: var(--bg); color: var(--text);
-    font: 16px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+    background: var(--bg); color: var(--text);
+    font: 16px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
   a { color: inherit; }
-  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+  main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 16px 20px; }
 
-  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.01em; text-decoration: none; }
-  .brand img { width: 28px; height: 28px; }
-  nav a { color: var(--mist); text-decoration: none; margin-left: 22px; font-size: 15px; }
-  nav a:hover { color: var(--text); }
-
-  /* The screen mock with a notch that cycles through its states. */
-  .hero { text-align: center; padding: 40px 0 30px; }
+  /* A screen with Brim's notch cycling through what it can show. Sizes are Brim's own, in DIPs,
+     scaled by --s to fit the mock screen. */
   .screen {
-    position: relative; margin: 0 auto 48px; max-width: 760px; aspect-ratio: 16 / 7;
+    position: relative; width: 100%; max-width: 900px; aspect-ratio: 16 / 8;
     border-radius: 18px; border: 1px solid var(--line); overflow: hidden;
     background: radial-gradient(120% 90% at 50% 0%, #1b2a4a 0%, #0d1220 45%, #090b10 100%);
   }
   .notch {
     position: absolute; left: 50%; top: 0; transform: translateX(-50%);
-    background: var(--pill); border-radius: 0 0 22px 22px;
-    width: 112px; height: 16px; overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,.45);
-    animation: notch 12s cubic-bezier(.3,1.35,.5,1) infinite;
+    width: calc(112px * var(--s)); height: calc(14px * var(--s));
+    background: #000; border-radius: 0 0 calc(10px * var(--s)) calc(10px * var(--s));
+    box-shadow: 0 10px 30px rgba(0,0,0,.45); overflow: hidden;
+    transition: width .42s cubic-bezier(.3,1.25,.5,1), height .42s cubic-bezier(.3,1.25,.5,1), border-radius .42s;
+    font-size: calc(12.5px * var(--s));
   }
-  .notch > div { position: absolute; inset: 0; opacity: 0; animation: 12s infinite; display: flex; align-items: center; }
-  .live { padding: 0 12px; gap: 8px; animation-name: live !important; }
-  .live .art { width: 16px; height: 16px; border-radius: 4px; background: linear-gradient(135deg,#ff8a5c,#c03a7a); }
-  .live .bars { margin-left: auto; display: flex; gap: 2px; align-items: flex-end; height: 12px; }
-  .live .bars i { width: 3px; background: var(--green); border-radius: 2px; animation: bar .9s ease-in-out infinite alternate; }
-  .live .bars i:nth-child(2) { animation-delay: .2s } .live .bars i:nth-child(3) { animation-delay: .4s }
-  .exp { padding: 18px 22px; gap: 16px; text-align: left; animation-name: exp !important; }
-  .exp .art { width: 64px; height: 64px; border-radius: 12px; background: linear-gradient(135deg,#ff8a5c,#c03a7a); flex: none; }
-  .exp b { display: block; font-size: 15px; }
-  .exp span { color: var(--mist); font-size: 13px; }
-  .exp em { display: block; font-style: normal; color: #fff; font-size: 13px; margin-top: 6px; opacity: .85; }
-  .osd { padding: 0 16px; gap: 10px; font-size: 13px; font-weight: 600; animation-name: osd !important; }
-  .osd .track { flex: 1; height: 5px; border-radius: 3px; background: #2a2d33; overflow: hidden; }
-  .osd .track i { display: block; height: 100%; width: 64%; background: #fff; border-radius: 3px; }
-  @keyframes notch {
-    0%, 14%   { width: 112px; height: 16px; }
-    20%, 36%  { width: 210px; height: 30px; border-radius: 0 0 16px 16px; }
-    42%, 62%  { width: 480px; height: 108px; border-radius: 0 0 30px 30px; }
-    68%, 80%  { width: 260px; height: 36px; border-radius: 0 0 18px 18px; }
-    86%, 100% { width: 112px; height: 16px; }
+  .content {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    opacity: 0; transition: opacity .16s;
   }
-  @keyframes live { 0%,18% {opacity:0} 21%,35% {opacity:1} 38%,100% {opacity:0} }
-  @keyframes exp  { 0%,43% {opacity:0} 47%,60% {opacity:1} 63%,100% {opacity:0} }
-  @keyframes osd  { 0%,69% {opacity:0} 72%,79% {opacity:1} 82%,100% {opacity:0} }
-  @keyframes bar  { from { height: 3px } to { height: 12px } }
-  @media (prefers-reduced-motion: reduce) {
-    .notch, .notch > div, .live .bars i { animation: none !important; }
-    .notch { width: 210px; height: 30px; } .live { opacity: 1; }
-  }
+  .content.on { opacity: 1; }
+  .content svg { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .row { display: flex; align-items: center; width: 100%; gap: .75em; padding: 0 1.25em; white-space: nowrap; }
+  .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .b { font-weight: 600; }
+  .dim { color: var(--mist); }
+  .bar { flex: 1; height: .38em; border-radius: 1em; background: #2a2d33; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: #fff; border-radius: 1em; transition: width .5s cubic-bezier(.3,1.2,.5,1); }
+  .art { width: 1.4em; height: 1.4em; border-radius: .3em; background: linear-gradient(135deg,#ff8a5c,#c03a7a); flex: none; }
+  .eq { display: flex; gap: .16em; align-items: flex-end; height: 1em; }
+  .eq i { width: .22em; background: var(--green); border-radius: .2em; animation: eq .7s ease-in-out infinite alternate; }
+  .eq i:nth-child(2) { animation-delay: .18s } .eq i:nth-child(3) { animation-delay: .36s }
+  @keyframes eq { from { height: .25em } to { height: 1em } }
+  .exp { display: flex; padding: 1.4em 1.8em; align-items: flex-start; gap: 1.2em; width: 100%; }
+  .exp .art { width: 6.4em; height: 6.4em; border-radius: .9em; }
+  .exp .title { font-size: 1.2em; font-weight: 600; }
+  .lyric { margin-top: .5em; color: #fff; opacity: .9; transition: opacity .2s; }
+  .prog { margin-top: .9em; height: .3em; border-radius: 1em; background: #2a2d33; overflow: hidden; }
+  .prog i { display: block; height: 100%; width: 38%; background: #fff; border-radius: 1em; transition: width 2.4s linear; }
+  .ctl { display: flex; gap: 1.4em; margin-top: .9em; }
+  .ctl svg { fill: #fff; stroke: none; width: 1.3em; height: 1.3em; }
+  .clock { font-size: 2.8em; font-weight: 600; letter-spacing: -.02em; line-height: 1; }
+  .ring { width: 2.4em; height: 2.4em; position: relative; flex: none; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: .8em; }
+  .toast { padding: 0 1.1em; gap: .9em; width: 100%; }
+  .toast .icon { width: 2.6em; height: 2.6em; border-radius: .7em; background: #1d6bf3; display: grid; place-items: center; flex: none; }
+  .toast .icon svg { width: 1.3em; height: 1.3em; }
+  .tline { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  h1 { font-size: clamp(40px, 6vw, 68px); line-height: 1.02; letter-spacing: -.035em; margin: 0 0 16px; font-weight: 750; }
-  .lede { color: var(--mist); font-size: clamp(17px, 2vw, 20px); max-width: 34em; margin: 0 auto 30px; }
-  .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 36px; }
   .btn {
-    display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px;
-    font-weight: 650; text-decoration: none; border: 1px solid var(--line); background: var(--panel);
+    display: inline-flex; flex-direction: column; align-items: center; padding: 13px 26px; border-radius: 18px;
+    font-weight: 650; text-decoration: none; border: 1px solid var(--line); background: var(--panel); line-height: 1.25;
   }
+  .btn small { font-weight: 400; font-size: 12px; opacity: .65; margin-top: 2px; }
   .btn.primary { background: var(--text); color: #0a0b0d; border-color: var(--text); }
   .btn:hover { filter: brightness(1.08); }
-  .meta { color: var(--mist); font-size: 14px; margin-top: 14px; }
-
-  section { padding: 70px 0 10px; }
-  h2 { font-size: clamp(28px, 3.6vw, 40px); letter-spacing: -.025em; margin: 0 0 26px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
-  .card h3 { margin: 0 0 6px; font-size: 17px; }
-  .card p { margin: 0; color: var(--mist); font-size: 15px; }
-  .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-  .steps li { counter-increment: step; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px 16px 56px; position: relative; color: var(--mist); }
-  .steps li::before { content: counter(step); position: absolute; left: 18px; top: 15px; width: 24px; height: 24px; border-radius: 50%; background: var(--text); color: #0a0b0d; font-weight: 700; font-size: 13px; display: grid; place-items: center; }
-  .steps b { color: var(--text); }
-  code { background: #1a1d22; border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; font-size: 14px; }
-  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
-  summary { cursor: pointer; font-weight: 600; }
-  details p { color: var(--mist); margin: 10px 0 2px; }
-  footer { color: var(--mist); font-size: 14px; padding: 60px 0 40px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  @media (max-width: 560px) { nav a:not(.cta) { display: none; } .screen { aspect-ratio: 4 / 3; } }
+  footer { color: var(--mist); font-size: 14px; padding: 28px 20px 30px; display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; }
+  @media (prefers-reduced-motion: reduce) { .notch, .content, .bar i, .prog i { transition: none; } .eq i { animation: none; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <a class="brand" href="#"><img src="icon.png" alt="">Brim</a>
-    <nav><a href="#features">Features</a><a href="#install">Install</a><a href="#faq">FAQ</a><a class="cta" href="#download">Download</a></nav>
-  </header>
-
-  <div class="hero">
-    <div class="screen" aria-hidden="true">
-      <div class="notch">
-        <div class="live"><span class="art"></span><span class="bars"><i></i><i></i><i></i></span></div>
-        <div class="exp"><span class="art"></span><div><b>Midnight Drive</b><span>Neon Coast</span><em>♪ and the city hums below us</em></div></div>
-        <div class="osd"><span>🔊</span><span class="track"><i></i></span><span>64</span></div>
-      </div>
-    </div>
-    <h1>A living notch<br>for Windows.</h1>
-    <p class="lede">Brim puts a small black pill at the top of your screen. It shows what's playing,
-      catches your volume and battery changes, and slides your notifications in. It's free and open source.</p>
-    <div class="buttons" id="download">
-      <a class="btn primary" href="https://github.com/mehdiacho/brim/releases/latest/download/Brim-portable.exe">Download for Windows</a>
-      <a class="btn" href="https://github.com/mehdiacho/brim/releases/latest/download/Brim.msix">MSIX package</a>
-    </div>
-    <p class="meta"><span id="version">Beta</span> · Windows 10 and 11 (x64) · about 0.5 MB · <a href="https://github.com/mehdiacho/brim/releases">all releases</a></p>
+<main>
+  <div class="screen" aria-label="Brim showing music, volume, battery, Bluetooth and notifications">
+    <div class="notch" id="notch"><div class="content" id="content"></div></div>
   </div>
-
-  <section id="features">
-    <h2>What it does</h2>
-    <div class="grid">
-      <div class="card"><h3>Now playing</h3><p>Works with Spotify, browsers, or any app that shows media controls. You get the album art, play/pause and skip, and synced lyrics from LRCLIB.</p></div>
-      <div class="card"><h3>Volume and brightness</h3><p>A slim bar slides out of the notch in place of the Windows flyout.</p></div>
-      <div class="card"><h3>Battery</h3><p>Charging, unplugged, low and full alerts, plus a charge ring when you hover.</p></div>
-      <div class="card"><h3>Bluetooth</h3><p>Shows when headphones connect or drop, with their battery level when the device reports it.</p></div>
-      <div class="card"><h3>Notifications</h3><p>Toasts from your apps show up in the notch, so they're easy to glance at.</p></div>
-      <div class="card"><h3>Stays out of the way</h3><p>Brim hides for fullscreen games and video, and stays light on CPU. It updates itself quietly.</p></div>
-    </div>
-  </section>
-
-  <section id="install">
-    <h2>Install</h2>
-    <ol class="steps">
-      <li><b>Download <code>Brim-portable.exe</code></b> and put it wherever you like, for example a <code>Brim</code> folder in Documents. There's nothing to install.</li>
-      <li><b>Run it.</b> Brim isn't signed with a paid certificate yet, so Windows SmartScreen may warn you. Choose <i>More info</i>, then <i>Run anyway</i>.</li>
-      <li><b>Allow notification access</b> if Windows asks, so Brim can mirror your toasts. Right-click the pill in the tray to set up <i>Start with Windows</i> and the other options.</li>
-    </ol>
-    <p class="meta" style="text-align:left">Prefer an installed app? Download <a href="https://github.com/mehdiacho/brim/releases/latest/download/Brim.cer">Brim.cer</a>.
-      Right-click it, choose <i>Install Certificate</i> → <i>Local Machine</i> → <i>Trusted People</i>, then open <code>Brim.msix</code>.</p>
-  </section>
-
-  <section id="faq">
-    <h2>FAQ</h2>
-    <details><summary>How do updates work?</summary><p>Brim checks GitHub for a new release when it starts and every few hours after that. It downloads the update in the background, checks the file's fingerprint, and then tells you it's ready. One click installs it. If you'd rather it installed on its own while you're away, turn that on under <i>Updates</i> in the tray menu.</p></details>
-    <details><summary>Does it collect anything?</summary><p>No. Brim connects to two places: LRCLIB for lyrics of the song that's playing, and GitHub to check for updates. The keyboard hook only watches for the volume keys, Caps Lock and layout switches, and passes every key straight on.</p></details>
-    <details><summary>How do I remove it?</summary><p>Quit it from the tray menu and delete the exe. Settings live in <code>%LOCALAPPDATA%\Brim</code>. If you installed the MSIX, uninstall Brim from Start.</p></details>
-    <details><summary>Something looks wrong</summary><p>It's a beta, and reports help. Tell Mehdi what you saw. A screenshot and your Windows version and display scaling make it much easier to fix.</p></details>
-  </section>
-
-  <footer>
-    <span>Brim by <a href="https://mehdiacho.tech">Mehdi Acho</a> · MIT licence</span>
-    <span>Lyrics by <a href="https://lrclib.net">LRCLIB</a></span>
-  </footer>
-</div>
+  <div class="buttons">
+    <a class="btn primary" href="https://github.com/mehdiacho/brim/releases/latest/download/Brim-portable.exe">Download for Windows<small id="version">Windows 10 and 11 · portable</small></a>
+    <a class="btn" href="https://github.com/mehdiacho/brim/releases/latest/download/Brim.msix">MSIX package<small>needs Brim.cer trusted</small></a>
+  </div>
+</main>
+<footer>
+  <span>Brim by <a href="https://mehdiacho.tech">Mehdi Acho</a></span>
+  <span>Lyrics by <a href="https://lrclib.net">LRCLIB</a></span>
+</footer>
 <script>
+  // Line icons, drawn on a 24-unit grid.
+  const I = {
+    vol: '<svg viewBox="0 0 24 24"><path d="M4 9h3l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>',
+    sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    caps: '<svg viewBox="0 0 24 24"><path d="M12 4l7 8h-4v4H9v-4H5z"/><path d="M9 20h6"/></svg>',
+    kbd: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h1M10 10h1M14 10h1M18 10h0M7 14h10"/></svg>',
+    bat: '<svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="17" height="10" rx="2"/><path d="M22 10.5v3"/><path d="M11.5 8.5l-2.5 4h3l-2 3" stroke="#6bdc8c"/></svg>',
+    bt: '<svg viewBox="0 0 24 24"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg>',
+    wifi: '<svg viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r=".6" fill="#fff"/></svg>',
+    msg: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+    prev: '<svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>',
+    pause: '<svg viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>',
+    next: '<svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>',
+  };
+  const lyrics = ['and the city hums below us', 'headlights paint the overpass', 'we drive until the morning'];
+  const level = (icon, from, to) => ({ html: `<div class="row">${icon}<span class="bar"><i style="width:${from}%"></i></span><span class="b">${to}</span></div>`,
+    after: el => setTimeout(() => el.querySelector('.bar i').style.width = to + '%', 60) });
+  const status = (icon, text, detail) => ({ html: `<div class="row">${icon}<span class="grow b">${text}</span><span class="dim">${detail}</span></div>` });
+
+  // Each state: size in DIPs (Brim's own), corner radius, content, and how long it stays.
+  const states = [
+    { w: 112, h: 14, r: 10, ms: 1000 },
+    { w: 200, h: 26, r: 13, ms: 1500, html: `<div class="row"><span class="art"></span><span class="grow dim">Midnight Drive</span><span class="eq"><i></i><i></i><i></i></span></div>` },
+    { w: 520, h: 150, r: 28, ms: 2600, html: `<div class="exp"><span class="art"></span><div class="grow"><div class="title">Midnight Drive</div><div class="dim">Neon Coast</div>
+        <div class="lyric" id="lyric">${lyrics[0]}</div><div class="prog"><i></i></div><div class="ctl">${I.prev}${I.pause}${I.next}</div></div></div>`,
+      after: el => {
+        setTimeout(() => el.querySelector('.prog i').style.width = '52%', 60);
+        lyrics.slice(1).forEach((l, i) => setTimeout(() => { const n = el.querySelector('#lyric'); if (n) n.textContent = l; }, 850 * (i + 1)));
+      } },
+    { w: 260, h: 34, r: 17, ms: 1400, ...level(I.vol, 40, 72) },
+    { w: 260, h: 34, r: 17, ms: 1400, ...level(I.sun, 80, 55) },
+    { w: 260, h: 34, r: 17, ms: 1200, ...status(I.caps, 'Caps Lock on', '') },
+    { w: 260, h: 34, r: 17, ms: 1200, ...status(I.kbd, 'English (United Kingdom)', '') },
+    { w: 260, h: 34, r: 17, ms: 1400, ...status(I.bat, 'Charging', '78%') },
+    { w: 260, h: 34, r: 17, ms: 1400, ...status(I.bt, 'Buds Pro', '85%') },
+    { w: 260, h: 34, r: 17, ms: 1400, ...status(I.wifi, 'Connected', 'Home') },
+    { w: 380, h: 64, r: 22, ms: 2200, html: `<div class="row toast"><span class="icon">${I.msg}</span><div class="grow"><div class="tline b">Messages</div>
+        <div class="tline">Sam</div><div class="tline dim">Running five minutes late, save me a seat</div></div></div>` },
+    { w: 520, h: 150, r: 28, ms: 2200, html: `<div class="exp" style="align-items:center"><div class="grow"><div class="clock" id="clock"></div><div class="dim" id="date"></div></div>
+        <div class="ring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" stroke="#2a2d33" stroke-width="3" fill="none"/>
+        <circle cx="18" cy="18" r="15" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="94.2" stroke-dashoffset="20.7" stroke-linecap="round"/></svg><span>78</span></div></div>`,
+      after: el => {
+        const now = new Date();
+        el.querySelector('#clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        el.querySelector('#date').textContent = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+      } },
+  ];
+
+  const notch = document.getElementById('notch');
+  const content = document.getElementById('content');
+  const screen = document.querySelector('.screen');
+  const fit = () => document.documentElement.style.setProperty('--s', Math.min(1.25, screen.clientWidth / 640).toFixed(3));
+  addEventListener('resize', fit); fit();
+
+  // ?s=N holds the display on state N, for checking one state's layout.
+  const hold = new URLSearchParams(location.search).get('s');
+  let i = hold === null ? 0 : +hold % states.length;
+  function show() {
+    const s = states[i];
+    content.classList.remove('on');
+    setTimeout(() => {
+      notch.style.width = `calc(${s.w}px * var(--s))`;
+      notch.style.height = `calc(${s.h}px * var(--s))`;
+      notch.style.borderRadius = `0 0 calc(${s.r}px * var(--s)) calc(${s.r}px * var(--s))`;
+      content.innerHTML = s.html || '';
+      setTimeout(() => { content.classList.add('on'); s.after && s.after(content); }, s.html ? 180 : 0);
+    }, 140);
+    if (hold !== null) return;
+    i = (i + 1) % states.length;
+    setTimeout(show, s.ms);
+  }
+  show();
+
   fetch('https://api.github.com/repos/mehdiacho/brim/releases/latest')
     .then(r => r.ok ? r.json() : null)
-    .then(r => { if (r && r.tag_name) document.getElementById('version').textContent = r.tag_name + ' beta'; })
+    .then(r => { if (r && r.tag_name) document.getElementById('version').textContent = r.tag_name + ' · Windows 10 and 11 · portable'; })
     .catch(() => {});
 </script>
 </body>

@@ -1,6 +1,6 @@
 # Brim
 
-A free, open-source living notch for Windows.
+A living notch for Windows.
 
 **Download:** <https://mehdiacho.tech/brim/>, or grab `Brim-portable.exe` from the
 [latest release](https://github.com/mehdiacho/brim/releases/latest).
