@@ -1,9 +1,23 @@
 # Skills used for the site revamp (2026-10-28)
 
+## Second pass, same day: interactive demo
+
+Mehdi didn't want a long page full of writing. He asked for an interactive product demo, in the
+style of an Apple keynote. So the feature cards, coming-soon grid, add-ons section and FAQ are
+gone. The page is now one pinned stage: each step of scrolling moves to the next chapter, with a
+one-line headline over a mock Windows desktop, and the notch in each chapter can be used (play
+music, answer a message, run the timer, drink water, tick tasks, drag files onto the shelf, press
+volume and Caps Lock keys, have the eyes follow you, pick a shape and colour, maximise a window).
+
+No new skills were loaded for this pass. The `emil-design-eng` motion rules and the
+`landing-page-design` type and spacing still apply. The first pass's notes follow.
+
+## First pass
+
 The revamp of `index.html` used these skills from the set listed in
 `X:\ai.tools\docs\capability-index.md` (row "Design/UI, motion ... skill packs").
 
-## Used
+### Used
 
 | Skill | What it decided |
 |---|---|
@@ -16,7 +30,7 @@ visible focus rings, `aria-pressed` on the demo's pause button, a pause control 
 moves for more than five seconds, the demo pausing itself when it's off screen or the tab is hidden,
 real text for the tagline's screen-reader label, and contrast tokens for both themes.
 
-## Skipped, and why
+### Skipped, and why
 
 | Skill | Why not |
 |---|---|
