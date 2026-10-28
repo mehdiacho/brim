@@ -1,5 +1,17 @@
 # Skills used for the site revamp (2026-10-28)
 
+## Third pass, same day: one to one with Brim
+
+Mehdi said the half-sun looked cut off and didn't behave like the real thing, and asked for every
+part of the demo to match the app exactly. I rebuilt the notch from Brim's source, not by eye:
+its springs, its outline (a rectangle with elliptical bottom corners, opening into a dome on the
+half-sun), the ears, the roundness presets, every size, the underglow, the glow and ripple when a
+file is dragged onto the shelf, the mascot's gaze, blink, cheer and sleep, and the layout of each
+page in DIPs. You can now drag a file from the shelf back out onto the desktop too. The colour swatches are
+gone, because Brim has no accent colour setting.
+
+No new skills were loaded for this pass.
+
 ## Second pass, same day: interactive demo
 
 Mehdi didn't want a long page full of writing. He asked for an interactive product demo, in the
